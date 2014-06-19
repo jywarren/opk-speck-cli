@@ -16,7 +16,7 @@
   "license": "GPL-2.0",
   "dependencies": {
     "debug": "^1.0.2",
-    "speck-sensor": "^0.1.1"
+    "speck-sensor": "^0.1.2"
   },
   "devDependencies": {},
   "scripts": {
