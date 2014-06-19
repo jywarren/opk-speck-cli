@@ -14,10 +14,10 @@ Or, if you use [nodemon](https://github.com/remy/nodemon):
 
     nodemon index.js
     
-Either way, if you want to see debug, info, and error messages, prepend the run command with `DEBUG=debug,info,error`, like this:
+Either way, if you want to see info and error messages, prepend the run command with `DEBUG=info,error`, like this:
 
-    DEBUG=debug,info,error node index.js
+    DEBUG=info,error node index.js
 
 Or:
 
-    DEBUG=debug,info,error nodemon index.js
+    DEBUG=info,error nodemon index.js
