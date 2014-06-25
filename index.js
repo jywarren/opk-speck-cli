@@ -12,6 +12,11 @@ var csvFieldNames = [];
 var sampleIntervalMillis = null;
 var dataSamplesFile = null;
 
+var preferredSpeckPath = null;
+if (process.env['SPECK_PATH']) {
+   preferredSpeckPath = process.env['SPECK_PATH'];
+}
+
 var arrayToCsvRecord = function(a) {
    return a.join(",") + LINE_SEPARATOR;
 };
@@ -54,9 +59,40 @@ var readSample = function() {
 };
 
 var connect = function() {
-   info("Connecting to a Speck...");
+   var speckHidDescriptors = Speck.enumerate();
+   if (speckHidDescriptors.length <= 0) {
+      info("No Specks found!");
+   }
+   else {
+      info("Path names of all connected Specks:");
 
-   speck = Speck.create();
+      var hidDescriptorOfPreferredSpeck = null;
+      for (var i = 0; i < speckHidDescriptors.length; i++) {
+         var hidDescriptor = speckHidDescriptors[i];
+         info("   " + hidDescriptor.path);
+
+         // remember this HID descriptor if the user specified a preferred path and this one matches
+         if (preferredSpeckPath && hidDescriptor.path == preferredSpeckPath) {
+            hidDescriptorOfPreferredSpeck = hidDescriptor;
+         }
+      }
+
+      if (preferredSpeckPath) {
+         info("Connecting to the Speck at path " + preferredSpeckPath + "...");
+         try {
+            speck = new Speck(hidDescriptorOfPreferredSpeck);
+         }
+         catch (e) {
+            error("Failed to connect to the Speck at path " + preferredSpeckPath);
+            speck = null;
+         }
+      }
+      else {
+         info("Connecting to the first Speck found...");
+         speck = Speck.create();
+      }
+   }
+
    if (speck && speck.isConnected()) {
       // first, get the logging interval, so we know how often this Speck will be producing data for us
       speck.getSpeckConfig(function(err1, config) {
