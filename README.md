@@ -38,9 +38,9 @@ Here's what to do to get the Node Speck Gateway running on a Raspberry Pi with R
 
 2. We need `libusb`, so do:
    
-   	     $ sudo apt-get install libusb-1.0-0
-   	     $ sudo apt-get install libusb-1.0-0-dev
-   	
+        $ sudo apt-get install libusb-1.0-0
+        $ sudo apt-get install libusb-1.0-0-dev
+
 3. Go to [http://nodejs.org/dist/](http://nodejs.org/dist/) and look for the latest version of Node.js for Raspberry Pi.  You pretty much have to just poke around in the various version directories until you find it.  Just start with the most recent and work backwards checking each version's directory until you find one with a tarball with `linux-arm-pi` in the name.  As of this writing (2014-09-24), the latest version for Pi is v0.10.28.  If you find a newer version, use it, and just modify the following instructions accordingly. Anwyay, download and install Node.js: 
 
         $ cd
@@ -52,9 +52,9 @@ Here's what to do to get the Node Speck Gateway running on a Raspberry Pi with R
 
 4. Add this to the end of your `~/.bashrc`, modifying the `NODE_JS_HOME` path as necessary:
 
-	     # Node.js
-	     NODE_JS_HOME=/home/pi/node/node-v0.10.28-linux-arm-pi
-	     PATH=$PATH:$NODE_JS_HOME/bin
+        # Node.js
+        NODE_JS_HOME=/home/pi/node/node-v0.10.28-linux-arm-pi
+        PATH=$PATH:$NODE_JS_HOME/bin
 
 5. Log out, then log back in so Node's binaries are on your path. You can test with:
 
@@ -66,6 +66,6 @@ Here's what to do to get the Node Speck Gateway running on a Raspberry Pi with R
 
 6. Install node-gyp:
 
-	     $ npm install -g node-gyp
+        $ npm install -g node-gyp
 
 7. Finally, clone this repository and run the Node Speck Gateway as described above.     
