@@ -1,8 +1,11 @@
 var Speck = require('speck-sensor');
 var fs = require('fs');
 var path = require('path');
-var info = require('debug')('info');
-var error = require('debug')('error');
+var log4js = require('log4js');
+log4js.configure('log4js-config.json');
+var log = log4js.getLogger("speck-gateway");
+
+log.info("---------------------- Node Speck Gateway ----------------------");
 
 var LINE_SEPARATOR = "\n";
 var ONE_MINUTE = 60 * 1000;
@@ -34,12 +37,12 @@ var readSample = function() {
    speck.getSample(function(err, dataSample) {
 
       if (err) {
-         error("Error getting sample.  Will disconnect, wait 1 minute, and then reconnect and try again.  Error: " + err);
+         log.error("Error getting sample.  Will disconnect, wait 1 minute, and then reconnect and try again.  Error: " + err);
          try {
             speck.disconnect();
          }
          catch (e) {
-            error("Error while trying to disconnect from the Speck: " + e);
+            log.error("Error while trying to disconnect from the Speck: " + e);
          }
 
          setTimeout(connect, ONE_MINUTE);
@@ -61,15 +64,15 @@ var readSample = function() {
 var connect = function() {
    var speckHidDescriptors = Speck.enumerate();
    if (speckHidDescriptors.length <= 0) {
-      info("No Specks found!");
+      log.info("No Specks found!");
    }
    else {
-      info("Path names of all connected Specks:");
+      log.info("Path names of all connected Specks:");
 
       var hidDescriptorOfPreferredSpeck = null;
       for (var i = 0; i < speckHidDescriptors.length; i++) {
          var hidDescriptor = speckHidDescriptors[i];
-         info("   " + hidDescriptor.path);
+         log.info("   " + hidDescriptor.path);
 
          // remember this HID descriptor if the user specified a preferred path and this one matches
          if (preferredSpeckPath && hidDescriptor.path == preferredSpeckPath) {
@@ -78,17 +81,17 @@ var connect = function() {
       }
 
       if (preferredSpeckPath) {
-         info("Connecting to the Speck at path " + preferredSpeckPath + "...");
+         log.info("Connecting to the Speck at path " + preferredSpeckPath + "...");
          try {
             speck = new Speck(hidDescriptorOfPreferredSpeck);
          }
          catch (e) {
-            error("Failed to connect to the Speck at path " + preferredSpeckPath);
+            log.error("Failed to connect to the Speck at path " + preferredSpeckPath);
             speck = null;
          }
       }
       else {
-         info("Connecting to the first Speck found...");
+         log.info("Connecting to the first Speck found...");
          speck = Speck.create();
       }
    }
@@ -97,10 +100,10 @@ var connect = function() {
       // first, get the logging interval, so we know how often this Speck will be producing data for us
       speck.getSpeckConfig(function(err1, config) {
          if (err1) {
-            error("Failed to get the Speck config.  Aborting.  Error: " + err1);
+            log.error("Failed to get the Speck config.  Aborting.  Error: " + err1);
          }
          else {
-            info("Connected to Speck " + config.id);
+            log.info("Connected to Speck " + config.id);
 
             // set the output filename
             dataSamplesFile = path.join(__dirname, "speck_" + config.id + ".csv");
@@ -114,7 +117,7 @@ var connect = function() {
       });
    }
    else {
-      error("Failed to connect to a Speck.  Will retry in 1 minute.");
+      log.error("Failed to connect to a Speck.  Will retry in 1 minute.");
       setTimeout(connect, ONE_MINUTE);
    }
 };
@@ -123,7 +126,7 @@ var readSampleInitialization = function() {
    // get a current sample so we can build an array of field names we'll be writing to the CSV
    speck.getCurrentSample(function(err2, dataSample) {
       if (err2) {
-         error("Failed to get a current sample.  Aborting.  Error: " + err2);
+         log.error("Failed to get a current sample.  Aborting.  Error: " + err2);
       }
       else {
          // get the field names

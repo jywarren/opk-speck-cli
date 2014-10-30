@@ -2,3 +2,5 @@
 *.iws
 node_modules
 out
+node-speck-gateway.log*
+speck*.csv

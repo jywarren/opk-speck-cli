@@ -1,0 +1,15 @@
+{
+   "appenders" : [
+      {
+         "type" : "console",
+         "level" : "DEBUG"
+      },
+      {
+         "type" : "file",
+         "level" : "DEBUG",
+         "filename" : "node-speck-gateway.log",
+         "maxLogSize" : 1000000,
+         "backups" : 5
+      }
+   ]
+}
