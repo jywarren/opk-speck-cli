@@ -60,4 +60,20 @@ Here's what to do to get the Node Speck Gateway running on a Raspberry Pi with R
 
         $ npm install -g node-gyp
 
-7. Finally, clone this repository and run the Node Speck Gateway as described above.     
+7. Clone this repository, install its dependences, and copy the Speck `.rules` file:
+
+        $ cd ~
+        $ git clone https://github.com/CMU-CREATE-Lab/node-speck-gateway.git
+        $ cd node-speck-gateway
+        $ npm install
+        $ sudo cp node_modules/speck-sensor/etc/linux/55-speck.rules /etc/udev/rules.d/.
+
+8. Restart the Raspberry Pi:
+
+        $ sudo shutdown -r now
+
+9. SSH back in to the Raspberry Pi.
+10. Finally, run the Speck Gateway:
+
+	     $ cd ~/node-speck-gateway
+	     $ node index.js
