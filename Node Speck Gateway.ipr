@@ -61,7 +61,7 @@
   </component>
   <component name="JavaScriptLibraryMappings">
     <file url="file://$PROJECT_DIR$" libraries="{node-speck-gateway node_modules}" />
-    <file url="PROJECT" libraries="{Node.js v0.10.28 Core Modules, node-speck-gateway node_modules}" />
+    <file url="PROJECT" libraries="{Node.js v0.10.30 Core Modules, node-speck-gateway node_modules}" />
     <includedPredefinedLibrary name="Node.js Globals" />
   </component>
   <component name="ProjectModuleManager">
@@ -76,7 +76,7 @@
     <mapping directory="" vcs="Git" />
   </component>
   <component name="libraryTable">
-    <library name="node-speck-gateway node_modules" type="javaScript">
+    <library name="node_modules" type="javaScript">
       <properties>
         <option name="frameworkName" value="node_modules" />
         <sourceFilesUrls>
