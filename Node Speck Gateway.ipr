@@ -60,8 +60,7 @@
     <version value="1.0" />
   </component>
   <component name="JavaScriptLibraryMappings">
-    <file url="file://$PROJECT_DIR$" libraries="{node-speck-gateway node_modules}" />
-    <file url="PROJECT" libraries="{Node.js v0.10.30 Core Modules, node-speck-gateway node_modules}" />
+    <file url="PROJECT" libraries="{Node.js v0.10.30 Core Modules, node_modules}" />
     <includedPredefinedLibrary name="Node.js Globals" />
   </component>
   <component name="ProjectModuleManager">
@@ -91,4 +90,3 @@
     </library>
   </component>
 </project>
-
