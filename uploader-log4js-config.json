@@ -1,5 +1,5 @@
 {
-   "replaceConsole" : false,
+   "replaceConsole" : true,
    "appenders" : [
       {
          "type" : "console",
@@ -10,7 +10,7 @@
       },
       {
          "type" : "file",
-         "filename" : "node-speck-gateway.log",
+         "filename" : "speck-uploader.log",
          "maxLogSize" : 1000000,
          "backups" : 5,
          "layout" : {

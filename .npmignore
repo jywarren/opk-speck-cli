@@ -2,5 +2,6 @@
 *.ipr
 *.iws
 out
-node-speck-gateway.log*
+speck-downloader.log
+speck-uploader.log
 speck*.csv

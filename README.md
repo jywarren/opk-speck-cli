@@ -6,17 +6,17 @@ A Node.js gateway for the CMU CREATE Lab Speck particle sensor.  This initial ve
 Usage
 =====
 
-Run the gateway with:
+Run the downloader with:
 
-    node index.js
+    node downloader.js
 
 Or, if you use [nodemon](https://github.com/remy/nodemon):
 
-    nodemon index.js
+    nodemon downloader.js
     
 If you want to connect to a Speck on a particular port, use something like this:
 
-    SPECK_PATH=0001:0005:00 node index.js
+    SPECK_PATH=0001:0005:00 node downloader.js
 
 Installation on a Raspberry Pi
 ==============================
@@ -73,7 +73,8 @@ Here's what to do to get the Node Speck Gateway running on a Raspberry Pi with R
         $ sudo shutdown -r now
 
 9. SSH back in to the Raspberry Pi.
+
 10. Finally, run the Speck Gateway:
 
 	     $ cd ~/node-speck-gateway
-	     $ node index.js
+	     $ node downloader.js
