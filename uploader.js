@@ -6,7 +6,7 @@ var config = require('./uploader-config');
 var superagent = require('superagent');
 var flow = require('nimble');
 var exec = require('child_process').exec;
-var binarySearch = require('./lib/binarySearch')
+var binarySearch = require('./lib/binarySearch');
 
 var maxTimeSecs = null;
 var error = null;
@@ -36,7 +36,7 @@ var getMaxTimeSeconds = function(callback) {
                     if (res.status == 200) {
                        if (res.body) {
                           if (res.body.data) {
-                             return callback(null, res.body.data.maxTimeSecs)
+                             return callback(null, res.body.data['maxTimeSecs'])
                           }
                           return callback(new Error("Missing response data!"));
                        }
@@ -112,134 +112,154 @@ var csvToJson = function(csv) {
          "data" : []
       };
       lines.forEach(function(line) {
-         var fields = line.split(',')  // TODO: get delimiter from config
-         json.data.push(fields);
+         var fields = line.split(',');  // TODO: get delimiter from config
+
+         // convert to floats--this is critical, because otherwise the data gets inserted as strings, and we get no
+         // minValue and maxValue calculations from the datastore.  TODO: get data type (int/float/string) from config
+         // for each field
+         var record = fields.map(parseFloat);
+         json.data.push(record);
       });
       return json;
    }
    return null;
 };
 
-flow.series([
-               // TODO: check to make sure the CSV file even exists!
-               function(done) {
-                  done();
-               },
+var run = function() {
 
-               // fetch the timestamp of the last data point from ESDR
-               function(done) {
-                  getMaxTimeSeconds(function(err, theMaxTimeSecs) {
-                     if (err) {
-                        error = err
-                     }
-                     else {
-                        maxTimeSecs = theMaxTimeSecs;
+   flow.series([
+                  // TODO: check to make sure the CSV file even exists!
+                  function(done) {
+                     maxTimeSecs = null;
+                     error = null;
+                     startingLineNumber = null;
+                     numLines = null;
+                     csvLinesToUpload = null;
+                     jsonToUpload = null;
 
-                        log.debug("maxTimeSecs = [" + maxTimeSecs + "]");
-
-                        // start at the beginning of the file if nothing has been uploaded yet
-                        if (maxTimeSecs == null) {
-                           startingLineNumber = 1;    // start at line 1 because we want to skip the header
-                        }
-                     }
                      done();
-                  });
-               },
+                  },
 
-               // find the correct starting line, if necessary
-               function(done) {
-                  if (isStartingLineNumberUnknown() && hasNoError()) {
-                     findStartingLineNumber(function(err, lineNumber) {
-                        // todo
+                  // fetch the timestamp of the last data point from ESDR
+                  function(done) {
+                     getMaxTimeSeconds(function(err, theMaxTimeSecs) {
                         if (err) {
-                           error = err;
+                           error = err
                         }
                         else {
-                           startingLineNumber = lineNumber;
-                           log.info("Got startingLineNumber of " + startingLineNumber);
+                           maxTimeSecs = theMaxTimeSecs;
+
+                           log.debug("maxTimeSecs = [" + maxTimeSecs + "]");
+
+                           // start at the beginning of the file if nothing has been uploaded yet
+                           if (maxTimeSecs == null) {
+                              startingLineNumber = 1;    // start at line 1 because we want to skip the header
+                           }
                         }
                         done();
                      });
+                  },
 
-                  }
-                  else {
-                     done();
-                  }
-               },
-
-               // now that we know the starting line number, read lines from the CSV
-               function(done) {
-                  if (!isStartingLineNumberUnknown() && hasNoError()) {
-                     // line with maxTimeSecs wasn't found--figure out why
-                     if (startingLineNumber < 0) {
-                        var insertionLineNumber = ~startingLineNumber;
-
-                        // if the maxTimeSecs line falls BEFORE the first record in the CSV, then that means all the
-                        // data in the CSV is newer, so just start reading from the beginning
-                        if (insertionLineNumber <= 1) {
-                           startingLineNumber = 1;
-                        }
-                        else if (insertionLineNumber <= numLines) {
-                           startingLineNumber = insertionLineNumber - 1;
-                        }
-                     }
-
-                     if (startingLineNumber > 0 && (numLines == null || startingLineNumber < numLines)) {
-                        // Add 1 to startingLineNumber so that we skip the line containing maxTimeSecs--it's
-                        // already been uploaded, so no need to do so again.
-                        startingLineNumber++;
-
-                        log.info("Now need to read lines from the CSV, starting at line [" + startingLineNumber + "]");
-
-                        // Read the lines by doing a tail and piping to head (TODO: is there a better way?). Note that
-                        exec("tail -n +" + startingLineNumber + " " + config.get("csv") + " | head -n " + config.get("maxRecordsPerUpload"), function(err, stdout) {
+                  // find the correct starting line, if necessary
+                  function(done) {
+                     if (isStartingLineNumberUnknown() && hasNoError()) {
+                        findStartingLineNumber(function(err, lineNumber) {
+                           // todo
                            if (err) {
                               error = err;
                            }
                            else {
-                              csvLinesToUpload = stdout.trim();
+                              startingLineNumber = lineNumber;
+                              log.info("Got startingLineNumber of " + startingLineNumber);
                            }
                            done();
                         });
+
                      }
                      else {
-                        log.info("No new data to upload!");
+                        done();
+                     }
+                  },
+
+                  // now that we know the starting line number, read lines from the CSV
+                  function(done) {
+                     if (!isStartingLineNumberUnknown() && hasNoError()) {
+                        // line with maxTimeSecs wasn't found--figure out why
+                        if (startingLineNumber < 0) {
+                           var insertionLineNumber = ~startingLineNumber;
+
+                           // if the maxTimeSecs line falls BEFORE the first record in the CSV, then that means all the
+                           // data in the CSV is newer, so just start reading from the beginning
+                           if (insertionLineNumber <= 1) {
+                              startingLineNumber = 1;
+                           }
+                           else if (insertionLineNumber <= numLines) {
+                              startingLineNumber = insertionLineNumber - 1;
+                           }
+                        }
+
+                        if (startingLineNumber > 0 && (numLines == null || startingLineNumber < numLines)) {
+                           // Add 1 to startingLineNumber so that we skip the line containing maxTimeSecs--it's
+                           // already been uploaded, so no need to do so again.
+                           startingLineNumber++;
+
+                           log.info("Now need to read lines from the CSV, starting at line [" + startingLineNumber + "]");
+
+                           // Read the lines by doing a tail and piping to head (TODO: is there a better way?). Note that
+                           exec("tail -n +" + startingLineNumber + " " + config.get("csv") + " | head -n " + config.get("maxRecordsPerUpload"), function(err, stdout) {
+                              if (err) {
+                                 error = err;
+                              }
+                              else {
+                                 csvLinesToUpload = stdout.trim();
+                              }
+                              done();
+                           });
+                        }
+                        else {
+                           log.info("No new data to upload!");
+                           done();
+                        }
+                     }
+                  },
+
+                  // convert the CSV to JSON
+                  function(done) {
+                     if (csvLinesToUpload != null) {
+                        jsonToUpload = csvToJson(csvLinesToUpload);
+                        done();
+                     }
+                  },
+
+                  // upload to ESDR!
+                  function(done) {
+                     if (jsonToUpload != null) {
+                        superagent
+                              .put(config.get("esdr:apiRootUrl") + "/feed")
+                              .set({
+                                      FeedApiKey : config.get("esdr:feedId")
+                                   })
+                              .send(jsonToUpload)
+                              .end(function(err, res) {
+                                      if (err || res == null) {
+                                         error = err;
+                                      }
+                                      else {
+                                         log.debug(JSON.stringify(res.body, null, 3));
+                                      }
+                                      done();
+                                   });
                      }
                   }
-               },
+               ],
+         // handle outcome
+               function() {
+                  // TODO: deal with possible error
+                  log.info("All done!");
 
-               // convert the CSV to JSON
-               function(done) {
-                  if (csvLinesToUpload != null) {
-                     jsonToUpload = csvToJson(csvLinesToUpload);
-                     done();
-                  }
-               },
-
-               // upload to ESDR!
-               function(done) {
-                  if (jsonToUpload != null) {
-                     superagent
-                           .put(config.get("esdr:apiRootUrl") + "/feed")
-                           .set({
-                                   FeedApiKey : config.get("esdr:feedId")
-                                })
-                           .send(jsonToUpload)
-                           .end(function(err, res) {
-                                   if (err || res == null) {
-                                      error = err;
-                                   }
-                                   else {
-                                      log.debug(JSON.stringify(res.body, null, 3));
-                                   }
-                                   done();
-                                });
-                  }
+                  setTimeout(run, 5000);
                }
-            ],
-      // handle outcome
-            function() {
-               // TODO: deal with possible error
-               log.info("All done!");
-            }
-);
+   );
+};
+
+run();
