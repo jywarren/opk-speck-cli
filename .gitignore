@@ -2,6 +2,6 @@
 *.iws
 node_modules
 out
-speck-downloader.log
-speck-uploader.log
+speck-downloader.log*
+speck-uploader.log*
 speck*.csv
