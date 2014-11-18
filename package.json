@@ -2,7 +2,7 @@
   "name": "speck-gateway",
   "version": "0.1.3",
   "description": "A Node.js gateway for the CMU CREATE Lab Speck particle sensor.",
-  "main": "downloader.js",
+  "main": "index.js",
   "keywords": [
     "speck",
     "sensor",
@@ -16,11 +16,7 @@
   "license": "GPL-2.0",
   "dependencies": {
     "log4js": "^0.6.21",
-    "nconf": "^0.6.9",
-    "nimble": "0.0.2",
-    "run-mode": "^1.0.1",
-    "speck-sensor": "^0.1.4",
-    "superagent": "^0.21.0"
+    "speck-sensor": "^0.1.4"
   },
   "devDependencies": {},
   "scripts": {

@@ -10,7 +10,7 @@
       },
       {
          "type" : "file",
-         "filename" : "speck-uploader.log",
+         "filename" : "./logs/speck-gateway.log",
          "maxLogSize" : 1000000,
          "backups" : 5,
          "layout" : {
@@ -19,6 +19,6 @@
       }
    ],
    "levels" : {
-      "[all]" : "DEBUG"
+      "[all]" : "INFO"
    }
 }

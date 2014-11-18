@@ -2,10 +2,10 @@ var Speck = require('speck-sensor');
 var fs = require('fs');
 var path = require('path');
 var log4js = require('log4js');
-log4js.configure('downloader-log4js-config.json');
-var log = log4js.getLogger("speck-downloader");
+log4js.configure('log4js-config.json');
+var log = log4js.getLogger("speck-gateway");
 
-log.info("---------------------- Speck Downloader ----------------------");
+log.info("---------------------- Speck Gateway ----------------------");
 
 var LINE_SEPARATOR = "\n";
 var ONE_MINUTE = 60 * 1000;
