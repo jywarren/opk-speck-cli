@@ -14,6 +14,7 @@ var speck = null;
 var csvFieldNames = [];
 var sampleIntervalMillis = null;
 var dataSamplesFile = null;
+var previousTimestamp = null;
 
 var preferredSpeckPath = null;
 if (process.env['SPECK_PATH']) {
@@ -48,10 +49,17 @@ var readSample = function() {
          setTimeout(connect, ONE_MINUTE);
       }
       else {
-         // if the sample wasn't null, then a sample was found
-         var wasDataFound = dataSample != null;
+         // if the sample wasn't null and the timestamp is positive, then a sample was found
+         var wasDataFound = dataSample != null &&
+                            dataSample['sampleTimeSecs'] > 0;
          if (wasDataFound) {
-            writeSample(dataSample);
+            // make sure the timestamp is increasing (Bad Things may happen if the CSV isn't sorted asc by time)
+            var isTimestampStrictlyIncreasing = previousTimestamp == null ||
+                                                previousTimestamp < dataSample['sampleTimeSecs'];
+            previousTimestamp = dataSample['sampleTimeSecs'];
+            if (isTimestampStrictlyIncreasing) {
+               writeSample(dataSample);
+            }
          }
 
          // If a sample was found, then try to read another immediately.  Otherwise, set the timeout interval to
