@@ -8,7 +8,8 @@ var log = log4js.getLogger("speck-gateway");
 log.info("---------------------- Speck Gateway ----------------------");
 
 var LINE_SEPARATOR = "\n";
-var ONE_MINUTE = 60 * 1000;
+var ONE_MINUTE_IN_MILLIS = 60 * 1000;
+var MAX_SECONDS_IN_FUTURE_FOR_NEW_SAMPLES = 3 * 60;   // 3 minutes
 
 var speck = null;
 var csvFieldNames = [];
@@ -31,6 +32,9 @@ var writeSample = function(dataSample) {
       values.push(dataSample[fieldName]);
    });
    var record = arrayToCsvRecord(values);
+   if (log.isDebugEnabled()) {
+      log.debug("Writing sample: " + JSON.stringify(dataSample) + " as " + JSON.stringify(record));
+   }
    fs.appendFileSync(dataSamplesFile, record);
 };
 
@@ -46,7 +50,7 @@ var readSample = function() {
             log.error("Error while trying to disconnect from the Speck: " + e);
          }
 
-         setTimeout(connect, ONE_MINUTE);
+         setTimeout(connect, ONE_MINUTE_IN_MILLIS);
       }
       else {
          // if the sample wasn't null and the timestamp is positive, then a sample was found
@@ -56,10 +60,23 @@ var readSample = function() {
             // make sure the timestamp is increasing (Bad Things may happen if the CSV isn't sorted asc by time)
             var isTimestampStrictlyIncreasing = previousTimestamp == null ||
                                                 previousTimestamp < dataSample['sampleTimeSecs'];
-            previousTimestamp = dataSample['sampleTimeSecs'];
             if (isTimestampStrictlyIncreasing) {
-               writeSample(dataSample);
+               var maxTimeInFuture = (Date.now() / 1000) + MAX_SECONDS_IN_FUTURE_FOR_NEW_SAMPLES;
+               if (dataSample['sampleTimeSecs'] < maxTimeInFuture) {
+                  previousTimestamp = dataSample['sampleTimeSecs'];
+                  //log.debug("Writing sample: " + JSON.stringify(dataSample));
+                  writeSample(dataSample);
+               }
+               else {
+                  log.error("Skipping sample because the timestamp is more than [" + MAX_SECONDS_IN_FUTURE_FOR_NEW_SAMPLES + "] seconds in the future: " + JSON.stringify(dataSample));
+               }
+            } else {
+               log.error("Skipping sample because the timestamp is less than the previous timestamp [" + previousTimestamp + "]: " + JSON.stringify(dataSample));
             }
+         } else {
+            if (log.isDebugEnabled()) {
+               log.debug("No data found: " + JSON.stringify(dataSample));
+           }
          }
 
          // If a sample was found, then try to read another immediately.  Otherwise, set the timeout interval to
@@ -106,9 +123,9 @@ var connect = function() {
 
    if (speck && speck.isConnected()) {
       // first, get the logging interval, so we know how often this Speck will be producing data for us
-      speck.getSpeckConfig(function(err1, config) {
-         if (err1) {
-            log.error("Failed to get the Speck config.  Aborting.  Error: " + err1);
+      speck.getSpeckConfig(function(err, config) {
+         if (err) {
+            log.error("Failed to get the Speck config.  Aborting.  Error: " + err);
          }
          else {
             log.info("Connected to Speck " + config.id);
@@ -126,15 +143,15 @@ var connect = function() {
    }
    else {
       log.error("Failed to connect to a Speck.  Will retry in 1 minute.");
-      setTimeout(connect, ONE_MINUTE);
+      setTimeout(connect, ONE_MINUTE_IN_MILLIS);
    }
 };
 
 var readSampleInitialization = function() {
    // get a current sample so we can build an array of field names we'll be writing to the CSV
-   speck.getCurrentSample(function(err2, dataSample) {
-      if (err2) {
-         log.error("Failed to get a current sample.  Aborting.  Error: " + err2);
+   speck.getCurrentSample(function(err, dataSample) {
+      if (err) {
+         log.error("Failed to get a current sample.  Aborting.  Error: " + err);
       }
       else {
          // get the field names
