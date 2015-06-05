@@ -1,22 +1,14 @@
 {
-  "name": "speck-gateway",
-  "version": "0.1.6",
-  "description": "A Node.js gateway for the CMU CREATE Lab Speck particle sensor.",
+  "name": "opk-speck-cli",
+  "version": "0.0.1",
+  "description": "A Node.js gateway for the CMU CREATE Lab Speck particle sensor, based on code by Chris Bartley <bartley@cmu.edu> at https://github.com/CMU-CREATE-Lab/node-speck-gateway",
   "main": "index.js",
-  "keywords": [
-    "speck",
-    "sensor",
-    "particle",
-    "particles",
-    "pm2.5",
-    "createlab",
-    "cmucreatelab"
-  ],
-  "author": "Chris Bartley <bartley@cmu.edu>",
+  "author": "Jeffrey Warren <jeff@publiclab.org>",
   "license": "GPL-2.0",
   "dependencies": {
+    "speck-sensor": "^0.2.1",
     "log4js": "^0.6.22",
-    "speck-sensor": "^0.2.1"
+    "commander": "2.6.0"
   },
   "devDependencies": {},
   "scripts": {
@@ -24,10 +16,6 @@
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/CMU-CREATE-Lab/node-speck-gateway.git"
-  },
-  "bugs": {
-    "url": "https://github.com/CMU-CREATE-Lab/node-speck-gateway/issues"
-  },
-  "homepage": "https://github.com/CMU-CREATE-Lab/node-speck-gateway"
+    "url": "https://github.com/jywarren/opk-speck-cli.git"
+  }
 }

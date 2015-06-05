@@ -1,1 +1,0 @@
-By default, log files will go here.  You can change the log directory in the log4js-config.json.

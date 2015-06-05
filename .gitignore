@@ -2,5 +2,4 @@
 *.iws
 node_modules
 out
-logs/*.log*
 speck*.csv
