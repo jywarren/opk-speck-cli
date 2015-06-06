@@ -57,7 +57,19 @@ var readSample = function() {
          var maxTimeInFuture = (Date.now() / 1000) + MAX_SECONDS_IN_FUTURE_FOR_NEW_SAMPLES;
          if (dataSample['sampleTimeSecs'] < maxTimeInFuture) {
           previousTimestamp = dataSample['sampleTimeSecs'];
-          console.log(JSON.stringify(dataSample));
+
+          // {"sampleTimeSecs":1401879009,"humidity":35,"rawParticleCount":1,"particleCount":132}
+
+          var output = {
+            sampletimesecs: dataSample["sampleTimeSecs"],
+            humidity: dataSample["humidity"],
+            rawparticlecount: dataSample["rawParticleCount"],
+            particlecount: dataSample["particleCount"]
+          }
+
+          // output the data
+          console.log(JSON.stringify(output));
+
          }
          else {
           log("Skipping sample because the timestamp is more than [" + MAX_SECONDS_IN_FUTURE_FOR_NEW_SAMPLES + "] seconds in the future: " + JSON.stringify(dataSample));
@@ -76,7 +88,7 @@ var readSample = function() {
      //setTimeout(readSample, wasDataFound ? 1 : sampleIntervalMillis);
 
      // No: read on the schedule: 
-     setTimeout(sampleIntervalMillis);
+     setTimeout(readSample, sampleIntervalMillis);
     }
    });
 };
