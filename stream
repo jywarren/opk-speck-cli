@@ -131,33 +131,12 @@ var connect = function() {
    if (speck && speck.isConnected()) {
     // first, get the logging interval, so we know how often this Speck will be producing data for us
       // give the Speck a few seconds to start collecting data, and then kick of the initialization
-      setTimeout(readSampleInitialization, 3000);
+      setTimeout(readSample, 3000);
    }
    else {
     log("Failed to connect to a Speck.  Will retry in 1 minute.");
     setTimeout(connect, ONE_MINUTE_IN_MILLIS);
    }
-};
-
-var readSampleInitialization = function() {
-   // get a current sample so we can build an array of field names
-   speck.getCurrentSample(function(err, dataSample) {
-    if (err) {
-     log("Failed to get a current sample.  Aborting.  Error: " + err);
-    }
-    else {
-     // get the field names
-     csvFieldNames = [];
-     for (var field in dataSample) {
-      if (dataSample.hasOwnProperty(field)) {
-         csvFieldNames.push(field);
-      }
-     }
-
-     // Finally, kick of the reading of the samples
-     readSample();
-    }
-   });
 };
 
 connect();
