@@ -32,7 +32,7 @@ var previousTimestamp = null;
 var preferredSpeckPath = program.speck;
 
 var readSample = function() {
-   speck.getSample(function(err, dataSample) {
+   speck.getCurrentSample(function(err, dataSample) {
 
     if (err) {
      log("Error getting sample.  Will disconnect, wait 1 minute, and then reconnect and try again.  Error: " + err);
