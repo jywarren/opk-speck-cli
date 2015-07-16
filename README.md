@@ -6,3 +6,5 @@ Uses node-hid, which requires libusb and libusb-dev: `sudo apt-get install libus
 Must be run with sudo!
 
 Also, currently (June 5 2015) we are only taking spot readings every <interval>, not averaging. We should change or specify. 
+
+Example output: `{"sampleTimeSecs":1401879009,"humidity":35,"rawParticleCount":1,"particleCount":132}`
